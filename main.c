@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/errno.h>
 
 static void sighandler(int signo) {
     if (signo == SIGINT) {
@@ -34,11 +35,11 @@ char **parse_args(char *line, char *delim) {
     char *token;
     char *p = line;
     int i = 0;
-    char **args = malloc(5 * sizeof(char *));
+    char **args = malloc(sizeof(char *));
     while (p) {
         p = strip_cmd(p);
         token = strsep(&p, delim);
-        args[i] = malloc(5 * sizeof(char));
+        args[i] = malloc(sizeof(char));
         args[i] = token;
         i++;
     }
@@ -59,10 +60,16 @@ void run_child(char *command) {
         {
             int status;
             wait(&status);
+            if (WEXITSTATUS(status) != 0) {
+                printf("%s\n", strerror(WEXITSTATUS(status)));
+            }   
         }
         else
         {
-            execvp(args[0], args);
+            int check_error = execvp(args[0], args);
+            if (check_error == -1) {
+                exit(errno);
+            }
         }
     }
 }
