@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
+
 static void sighandler(int signo)
 {
     if (signo == SIGINT)
@@ -15,8 +16,8 @@ static void sighandler(int signo)
 
 char *strip_cmd(char *command)
 {
-    if (!*command)
-    {
+    // printf("command: %s\n", command);
+    if (!*command) {
         return command;
     }
     int i;
@@ -24,6 +25,7 @@ char *strip_cmd(char *command)
     int first_nw = -1;
     for (i = 0; *(command + i); i++)
     {
+
         if (*(command + i) != '\n' && *(command + i) != ' ' && first_nw == -1)
         {
             first_nw = i;
@@ -34,20 +36,22 @@ char *strip_cmd(char *command)
         }
     }
     *(command + last_nw + 1) = '\0';
+    // printf("last_nw: %d\n", last_nw);
     return command + first_nw;
 }
 
 char **parse_args(char *line, char *delim)
 {
+    // creates an array of strings that has a max length of 5
     char *token;
     char *p = line;
     int i = 0;
-    char **args = malloc(sizeof(char *));
+    char **args = malloc(5 * sizeof(char *));
     while (p)
     {
         p = strip_cmd(p);
         token = strsep(&p, delim);
-        args[i] = malloc(sizeof(char));
+        args[i] = malloc(5 * sizeof(char));
         args[i] = token;
         i++;
     }
@@ -65,10 +69,6 @@ void run_child(char *command)
     {
         chdir(args[1]);
     }
-    else if (!strcmp(args[0], ""))
-    {
-        return;
-    }
     else
     {
         int f = fork();
@@ -80,11 +80,11 @@ void run_child(char *command)
         else
         {
             int check_error = execvp(args[0], args);
-            if (check_error == -1)
-            {
-                printf("Error using command %s: %s", args[0], strerror(errno));
+            if (check_error == -1) {
+                printf("%s\n", strerror(errno));
             }
         }
+        free(args);
     }
 }
 
@@ -104,12 +104,13 @@ int main()
                 buffer[--len] = '\0';
             }
         }
+
         char **args = parse_args(buffer, ";");
+
         int i;
         for (i = 0; args[i] != NULL; i++)
         {
             run_child(strip_cmd(args[i]));
         }
-        free(args);
     }
 }
