@@ -1,5 +1,5 @@
 all:
-	gcc -o fake_bash main.c
+	gcc main.c -o Project.Project
 
-run:
-	./fake_bash
+make:
+	./Project.Project
