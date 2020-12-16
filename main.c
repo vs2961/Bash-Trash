@@ -25,7 +25,7 @@ char **parse_args(char *line, char *delim)
     int arg_count = 1;
     {
         int i = 0;
-        for(i = 0; i < strlen(line); i++){
+        for(i = 0; i < strlen(line); i++) {
             if(line[i] == *delim) arg_count++; 
         }
     }    
@@ -38,11 +38,12 @@ char **parse_args(char *line, char *delim)
     
     while (p)
     {
+        
         token = strsep(&p, delim);
         args[i] = token;
         i++;
     }
-    if(arg_count == 2) printf("a0: %s, a1: %s, a2: %s\n", args[0], args[1], args[2]);
+    //if(arg_count == 2) printf("a0: %s, a1: %s, a2: %s\n", args[0], args[1], args[2]);
     //if(arg_count == 1) printf("a0: %s, a1: %s\n", args[0], args[1]);
     return args;
 }
@@ -51,6 +52,7 @@ void redirect(char **args){
     int i = 0;
     while(args[i] != NULL){ // ls > hello.txt
         if(strcmp(args[i],">") == 0) { //Change out
+
             int file_desc = open(args[i+1], O_TRUNC | O_RDWR | O_CREAT, 0644); 
             dup2(file_desc, 1);
             args[i] = NULL;
@@ -95,46 +97,62 @@ void run_child(char *command)
         }
         else
         { //The child
-            if(strcmp(args[0], "") == 0) {
+            /*if(strcmp(args[0], "") == 0) {
                 printf("WARNING: One of your arguments was blank!\n");
                 free(args);
                 return;
-            } 
+            } */
+            int backup_sdout = dup( STDOUT_FILENO );            
+            int backup_sdin = dup( STDIN_FILENO );
             redirect(args);
             int check_error = execvp(args[0], args);
+            dup2(backup_sdout, STDOUT_FILENO);
+            dup2(backup_sdin, STDIN_FILENO);
             if (check_error == -1) {
-                printf("Error with argument %s: %s\n", args[0],strerror(errno));
+                printf("Error with argument %s: %s\n", args[0], strerror(errno));
             }
         }
         free(args);
     }
 }
 
-
-
-char *get_rid_of_spaces(char *buffer, int max_size){
-    char *newBuffer = malloc(max_size * sizeof(char));          
+char *fix_input(char *buffer, int max_size) {
+    char *new_buffer = malloc(max_size * sizeof(char));
     int i = 0;
-    int pos = 0;
-    bool first_met = false;
-    bool second_met = false;
-    for(i = 0; i < max_size; i++){
-        //Im not a space
-        if(buffer[i] == ';') first_met = second_met = false;
-        if(buffer[i] != ' '){
-            if(first_met && second_met) {
-                newBuffer[pos++] = ' ';
-                first_met = second_met = false;
-            }
-            newBuffer[pos++] = buffer[i];
-            continue;
-        }
-        //Im a space
-        if( (i+1) < max_size && buffer[i+1] != ' ' && buffer[i+1] != ';' && buffer[i+1] != '\0') second_met = true;
-        if( (i-1) >= 0 && buffer[i-1] != ' ' && buffer[i-1] != ';' && buffer[i-1] != '\0') first_met = true;
-        
+    while (*buffer == ' ' || *buffer == '\t' || *buffer == '\n') {
+        i++;
     }
-    return newBuffer;
+    int pos = -1;
+    while (i < max_size && buffer[i]) {
+        if (buffer[i] == '\\') {
+            new_buffer[++pos] = buffer[i + 1];
+            i++;
+        }
+        else if (buffer[i] == ' ' && new_buffer[pos] != ' ') {
+            new_buffer[++pos] = buffer[i];
+        }
+        else if (buffer[i] == '>' && buffer[i + 1] == '>') {
+            if (new_buffer[pos] != ' ') {
+                new_buffer[++pos] = ' ';
+            }
+            new_buffer[++pos] = buffer[i];
+            new_buffer[++pos] = buffer[i + 1];
+            new_buffer[++pos] = ' ';
+            i++;
+        }
+        else if (buffer[i] == '>' || buffer[i] == '<' || buffer[i] == '|') {
+            if (new_buffer[pos] != ' ') {
+                new_buffer[++pos] = ' ';
+            }
+            new_buffer[++pos] = buffer[i];
+            new_buffer[++pos] = ' ';
+        }
+        else if (buffer[i] != ' ' && buffer[i] != '\t') {
+            new_buffer[++pos] = buffer[i];
+        }
+        i++;
+    }
+    return new_buffer;
 }
 
 int main()
@@ -151,7 +169,6 @@ int main()
         //Read stdin for user arguments and get rid of spaces.
         fgets(buffer, max_len, stdin); 
 
-        if(buffer[0] == '\n') continue;
         if (buffer != NULL)
         {
             size_t len = strlen(buffer);
@@ -161,30 +178,35 @@ int main()
             }
         }
 
-        char *no_space_buffer = get_rid_of_spaces(buffer, max_len); //Must be freed, but do not free until end of program!
-        printf("No Space: %s\n", no_space_buffer);
+        char *new_buffer = fix_input(buffer, max_len); //Must be freed, but do not free until end of program!
+        printf("No Space: %s\n", new_buffer);
 
         //Count commands
-        int arg_count = 1;
-        {
-            int i = 0;
-            for(i = 0; i < strlen(no_space_buffer); i++){
-                if(no_space_buffer[i] == ';') {
-                    arg_count++;
-                }
-            }
-        }
 
-        char **args = parse_args(no_space_buffer, ";"); //**args depends on no_space_buffer to work
+        char **args = parse_args(new_buffer, ";"); //**args depends on no_space_buffer to work
         
         //Execute commands
         int i = 0;
-        for (i = 0; i < arg_count; i++)
+        for (i = 0; args[i] != NULL; i++)
         {
+            char **pipe_args = parse_args(args[i], "|");
+            int j = 0;
+            FILE *last = NULL;
+            for (j = 0; pipe_args[j] != NULL; j++) {
+                if (pipe_args[j + 1] != NULL) {
+                    if (last != NULL) {
+                        int file_desc = open(args[i+1], O_RDONLY, 0644); 
+                        dup2(file_desc, STDIN_FILENO);
+                        last = popen(pipe_args[j], "r");
+                        dup2(
+                    }
+
+                }
+            }
             run_child(args[i]);
         }
 
         free(args);
-        free(no_space_buffer);
+        free(new_buffer);
     }
 }
