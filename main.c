@@ -85,26 +85,23 @@ void redirect(char **args)
     {
         if (strcmp(args[i], ">") == 0)
         { //Change out
-            int file_desc = open(args[i + 1], O_TRUNC | O_RDWR | O_CREAT, 0644);
-            dup2(file_desc, 1);
+            int file_desc1 = open(args[i + 1], O_TRUNC | O_RDWR | O_CREAT, 0644);
+            dup2(file_desc1, STDOUT_FILENO);
             args[i] = NULL;
-            return;
         }
 
-        if (strcmp(args[i], ">>") == 0)
+        else if (strcmp(args[i], ">>") == 0)
         { //Change out but append instead of overwriting
-            int file_desc = open(args[i + 1], O_RDWR | O_CREAT | O_APPEND, 0644);
-            dup2(file_desc, 1);
+            int file_desc2 = open(args[i + 1], O_RDWR | O_CREAT | O_APPEND, 0644);
+            dup2(file_desc2, STDOUT_FILENO);
             args[i] = NULL;
-            return;
         }
 
-        if (strcmp(args[i], "<") == 0)
+        else if (strcmp(args[i], "<") == 0)
         { //Change stdin
-            int file_desc = open(args[i + 1], O_RDONLY, 0644);
-            dup2(file_desc, 0);
+            int file_desc3 = open(args[i + 1], O_RDONLY, 0644);
+            dup2(file_desc3, STDIN_FILENO);
             args[i] = NULL;
-            return;
         }
         i++;
     }
@@ -141,11 +138,6 @@ void run_child(char *command)
             int backup_sdin = dup(STDIN_FILENO);
             
             redirect(args);
-            int j;
-             for (j = 0; args[j] != NULL; j++)
-             {
-                 printf("args[%d]: %s\n", j, args[j]);
-             }
             int check_error = execvp(args[0], args);
             dup2(backup_sdout, STDOUT_FILENO);
             dup2(backup_sdin, STDIN_FILENO);
