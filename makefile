@@ -1,5 +1,5 @@
 all:
-	gcc main.c -o Project.Project
+	gcc main.c -o bash_trash
 
-make:
-	./Project.Project
+run:
+	./bash_trash
