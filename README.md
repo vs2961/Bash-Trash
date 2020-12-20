@@ -8,10 +8,9 @@ by `Michael Nath`, `Victor Siu`, and `Haotian Gan`
 * presents an authentic bash prompt
 * offers support for redirection (`<` and `>` and '>>') 
 * multi-piping (`|`) supported
-* extraneous spaces supported (commands can have more than one space between tokens)
-* NOTE: You can use ./main hide to prevent our shell from printing "bash_trash:[current-directory]"
-        This will be useful for when you only want to see the output of your commands.
-        For example: use <b>./main hide < test_cmds.txt<b/> to only see the output of commands you wrote in "test_cmds.txt"
+* extraneous spaces supported (commands can have more than one space between arguments)
+* <b> NOTE: Use "./main hide" to prevent our shell from printing "bash_trash:[current-directory]" before each command.
+        For example: Use <u>./main hide < test_cmds.txt<u/> feed in test_cmds.txt while only seeing the command outputs. </b>
 ---
 ## Attempted
 * Using "" to encapsulate arguments (not supported)
