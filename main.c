@@ -69,7 +69,6 @@ char **parse_args(char *line, char *delim)
 
     while (p)
     {
-
         token = strsep(&p, delim);
         args[i] = token;
         i++;
@@ -83,7 +82,7 @@ void redirect(char **args)
 {
     int i = 0;
     while (args[i] != NULL)
-    { // ls > hello.txt
+    {
         if (strcmp(args[i], ">") == 0)
         { //Change out
             int file_desc = open(args[i + 1], O_TRUNC | O_RDWR | O_CREAT, 0644);
@@ -140,7 +139,13 @@ void run_child(char *command)
             } */
             int backup_sdout = dup(STDOUT_FILENO);
             int backup_sdin = dup(STDIN_FILENO);
+            
             redirect(args);
+            int j;
+             for (j = 0; args[j] != NULL; j++)
+             {
+                 printf("args[%d]: %s\n", j, args[j]);
+             }
             int check_error = execvp(args[0], args);
             dup2(backup_sdout, STDOUT_FILENO);
             dup2(backup_sdin, STDIN_FILENO);
@@ -199,6 +204,7 @@ char *fix_input(char *buffer, int max_size)
         }
         i++;
     }
+    new_buffer[++pos] = '\0';
     return new_buffer;
 }
 
@@ -214,7 +220,6 @@ int main()
         printf("\nbash_trash:%s$ ", curr_dir);
 
         //Read stdin for user arguments and get rid of spaces.
-
         if (fgets(buffer, max_len, stdin) != NULL);
         {
             size_t len = strlen(buffer);
@@ -225,7 +230,7 @@ int main()
         }
 
         char *new_buffer = fix_input(buffer, max_len); //Must be freed, but do not free until end of program!
-        //printf("No Space: %s\n\n", new_buffer);
+        printf(" %s\n\n", new_buffer);
 
         //Count commands
 
@@ -237,10 +242,6 @@ int main()
         {
             char **pipe_args = parse_args(args[i], "|");
             int j = 0;
-            // for (j = 0; pipe_args[j] != NULL; j++)
-            // {
-            //     printf("at i=%d — pipe_args[%d]: %s\n", i, j, pipe_args[j]);
-            // }
             FILE *inpt = NULL;
             FILE *oupt = NULL;
 
