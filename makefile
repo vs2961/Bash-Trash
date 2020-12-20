@@ -1,5 +1,5 @@
 all:
-	gcc main.c -o bash_trash
+	gcc main.c functions.h functions.c -o main
 
 run:
-	./bash_trash
+	./main

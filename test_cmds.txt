@@ -15,7 +15,7 @@ echo DOUBLE REDIRECT TEST
 tr a-z A-Z < wholist > foo
 cat foo
 echo PIPE TEST
-ls | wc
+ls   |  wc
 rm wholist foo
 echo EXIT
 exit
