@@ -15,6 +15,7 @@ static void sighandler(int signo)
         printf("\n");
     }
 }
+
 char *strip_cmd(char *command)
 {
     // printf("command: %s\n", command);
@@ -213,9 +214,8 @@ int main()
         printf("\nbash_trash:%s$ ", curr_dir);
 
         //Read stdin for user arguments and get rid of spaces.
-        fgets(buffer, max_len, stdin);
 
-        if (buffer[0] != NULL)
+        if (fgets(buffer, max_len, stdin) != NULL);
         {
             size_t len = strlen(buffer);
             if (len > 0 && buffer[len - 1] == '\n')
@@ -225,7 +225,7 @@ int main()
         }
 
         char *new_buffer = fix_input(buffer, max_len); //Must be freed, but do not free until end of program!
-        printf("No Space: %s\n\n", new_buffer);
+        //printf("No Space: %s\n\n", new_buffer);
 
         //Count commands
 
