@@ -10,7 +10,7 @@ by `Michael Nath`, `Victor Siu`, and `Haotian Gan`
 * multi-piping (`|`) supported
 * extraneous spaces supported (commands can have more than one space between arguments)
 * <b> NOTE: Use "./main hide" to prevent our shell from printing "bash_trash:[current-directory]" before each command.
-        For example: Use <u>./main hide < test_cmds.txt<u/> feed in test_cmds.txt while only seeing the command outputs. </b>
+        For example: use "./main hide < test_cmds.txt" to feed in the commands you wrote in test_cmds.txt while only seeing output. </b>
 ---
 ## Attempted
 * Using "" to encapsulate arguments (not supported)
