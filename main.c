@@ -230,10 +230,6 @@ int main()
         //Count commands
 
         char **args = parse_args(new_buffer, ";"); //**args depends on no_space_buffer to work
-        // int j = 0;
-        //     for (j = 0; args[j] != NULL; j++) {
-        //         printf("args[%d]: %s\n", j, args[j]);
-        //     }
         //Execute commands
         int i = 0;
         int backup_sdin = dup(STDIN_FILENO);
@@ -248,25 +244,22 @@ int main()
             FILE *inpt = NULL;
             FILE *oupt = NULL;
 
-            char alreadyPiped = 0;
-
             for (j = 0; pipe_args[j] != NULL; j++)
             {
                 if (pipe_args[j + 1] != NULL)
                 {
-                    alreadyPiped = 1;
+
                     inpt = popen(pipe_args[j], "r");
                     int fd = fileno(inpt);
 
                     dup2(fd, STDIN_FILENO);
-                    run_child(pipe_args[j + 1]);
+                }
+                else
+                {
+                    run_child(pipe_args[j]);
                 }
             }
             dup2(backup_sdin, STDIN_FILENO);
-            if (!alreadyPiped)
-            {
-                run_child(args[i]);
-            }
         }
 
         free(args);
