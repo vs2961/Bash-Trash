@@ -113,6 +113,7 @@ void redirect(char **args)
 
 void run_child(char *command)
 {
+    signal(SIGINT, sighandler);
     char **args = parse_args(strip_cmd(command), " ");
 
     if (!strcmp(args[0], "exit"))
@@ -215,7 +216,7 @@ int main()
 
         //Read stdin for user arguments and get rid of spaces.
 
-        if (fgets(buffer, max_len, stdin) != NULL);
+        if (fgets(buffer, max_len, stdin) != NULL)
         {
             size_t len = strlen(buffer);
             if (len > 0 && buffer[len - 1] == '\n')
