@@ -6,7 +6,7 @@ by `Michael Nath`, `Victor Siu`, and `Haotian Gan`
 * parses multiple commands separated by `;` on one line
 * uses `fork()` *(oh snap!)* to create child processes
 * presents an authentic bash prompt
-* offers support for redirection (`<` and `>` and '>>') 
+* offers support for redirection (`<` and `>` and `>>`) 
 * multi-piping (`|`) supported
 * extraneous spaces supported (commands can have more than one space between arguments)
 * <b> NOTE: Use "./main hide" to prevent our shell from printing "bash_trash:[current-directory]" before each command.
