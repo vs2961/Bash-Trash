@@ -37,6 +37,9 @@ int main()
         int backup_sdin = dup(STDIN_FILENO);
         for (i = 0; args[i] != NULL; i++)
         {
+            if (strcmp(args[i], "") == 0) {
+                continue;
+            }
             char **pipe_args = parse_args(args[i], "|");
             int j = 0;
             FILE *inpt = NULL;
@@ -44,7 +47,12 @@ int main()
 
             for (j = 0; pipe_args[j] != NULL; j++)
             {
-                if (pipe_args[j + 1] != NULL)
+                printf("a%sa\n", pipe_args[j]);
+                if (strcmp(strip_cmd(pipe_args[j]), "") == 0) {
+                    printf("Syntax error.\n");
+                    break;
+                }
+                else if (pipe_args[j + 1] != NULL)
                 {
 
                     inpt = popen(pipe_args[j], "r");
