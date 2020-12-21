@@ -3,13 +3,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-static void sighandler(int signo)
-{
-    if (signo == SIGINT)
-    {
-        printf("\n");
-    }
-}
 
 int main()
 {
@@ -23,8 +16,8 @@ int main()
         getcwd(curr_dir, 256);
         printf("\nbash_trash:%s$ ", curr_dir);
         //Read stdin for user arguments and get rid of spaces.
+
         if (fgets(buffer, max_len, stdin) != NULL)
-            ;
         {
             size_t len = strlen(buffer);
             if (len > 0 && buffer[len - 1] == '\n')

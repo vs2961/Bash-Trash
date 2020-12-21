@@ -4,8 +4,17 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <fcntl.h>
+
+static void sighandler(int signo)
+{
+    if (signo == SIGINT)
+    {
+        printf("\n");
+    }
+}
 
 char *strip_cmd(char *command)
 {
@@ -118,11 +127,7 @@ void run_child(char *command)
         }
         else
         { //The child
-            /*if(strcmp(args[0], "") == 0) {
-                printf("WARNING: One of your arguments was blank!\n");
-                free(args);
-                return;
-            } */
+            signal(SIGINT, sighandler);
             int backup_sdout = dup(STDOUT_FILENO);
             int backup_sdin = dup(STDIN_FILENO);
 
